@@ -139,6 +139,21 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
+        /* --- BOTÃO DE MÚSICA (CASO FALHE O AUTOPLAY) --- */
+        #music-btn {
+            display: none; /* Só aparece se precisar */
+            margin: 20px auto;
+            padding: 10px 20px;
+            background: #d63384;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(214, 51, 132, 0.4);
+            animation: pulse 2s infinite;
+        }
+
         /* Carta de Amor */
         .love-letter {
             text-align: left;
@@ -210,6 +225,10 @@
 <body>
 
     <div class="hearts-bg" id="heartsBg"></div>
+    
+    <audio id="bg-music" loop>
+        <source src="musica.mp3" type="audio/mp3">
+    </audio>
 
     <div id="locked-screen">
         <div class="lock-icon">🔒</div>
@@ -234,6 +253,8 @@
             <p>Construindo nossa história há:</p>
             <div id="love-timer" class="love-time">Calculando...</div>
         </div>
+        
+        <button id="music-btn" onclick="playMusic()">🔊 Tocar Música Especial</button>
 
         <div class="love-letter">
             <p>Meu amor, obrigado por tudo que passamos juntos nesses 2 anos e 5 meses, por todo aprendizado que sempre você me traz, pela força que me dá e pela forma que me encoraja a sempre ser um homem melhor. Às vezes não cai a ficha que eu tenho você! ♥️♥️♥️</p>
@@ -277,23 +298,45 @@
         // Data de Início do Namoro: 03/09/2023
         const relationshipStartDate = new Date(2023, 8, 3, 0, 0, 0);
 
+        // --- LÓGICA DO ÁUDIO ---
+        const audio = document.getElementById('bg-music');
+        const musicBtn = document.getElementById('music-btn');
+
+        function playMusic() {
+            audio.play().then(() => {
+                // Se der certo, esconde o botão
+                musicBtn.style.display = 'none';
+            }).catch(error => {
+                // Se der erro (bloqueio do navegador), mostra o botão
+                console.log("Autoplay bloqueado");
+                musicBtn.style.display = 'block';
+            });
+        }
+
         // --- LÓGICA DO BLOQUEIO ---
         function checkLock() {
             const now = new Date();
             const difference = unlockDate - now;
 
             if (difference <= 0) {
-                // Desbloqueia
-                document.getElementById('locked-screen').style.display = 'none';
+                // Se já passou da hora
+                const lockScreen = document.getElementById('locked-screen');
                 const content = document.getElementById('main-content');
-                content.style.display = 'block';
-                setTimeout(() => { content.style.opacity = 1; }, 100);
                 
-                // Inicia o contador de namoro
-                updateLoveTimer();
-                setInterval(updateLoveTimer, 1000);
+                // Se a tela de bloqueio ainda estiver visível, faz a transição
+                if (lockScreen.style.display !== 'none') {
+                    lockScreen.style.display = 'none';
+                    content.style.display = 'block';
+                    setTimeout(() => { content.style.opacity = 1; }, 100);
+                    
+                    // Tenta tocar a música automaticamente
+                    playMusic();
+                }
+
+                // Mantém o contador de namoro atualizado
+                updateLoveTimer(); 
             } else {
-                // Atualiza contagem regressiva
+                // Se ainda está bloqueado
                 const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((difference % (1000 * 60)) / 1000);
@@ -333,8 +376,8 @@
 
         // Inicia
         createHearts();
-        setInterval(checkLock, 1000);
-        checkLock();
+        setInterval(checkLock, 1000); // Checa o bloqueio a cada segundo
+        checkLock(); // Checa imediatamente
     </script>
 </body>
 </html>
