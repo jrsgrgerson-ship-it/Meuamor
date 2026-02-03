@@ -49,12 +49,14 @@
             height: 100vh;
             z-index: 100;
             position: relative;
+            padding: 20px;
         }
 
         .lock-icon {
-            font-size: 5rem;
+            font-size: 4rem;
             margin-bottom: 20px;
             animation: pulse 2s infinite;
+            color: #ffb7b2;
         }
 
         @keyframes pulse {
@@ -63,20 +65,34 @@
             100% { transform: scale(1); }
         }
 
-        .countdown-title {
-            font-size: 1.5rem;
+        .dedicatoria {
+            font-size: 1.8rem;
+            color: #fff;
             margin-bottom: 10px;
+            font-weight: bold;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            line-height: 1.4;
+        }
+
+        .aviso-bloqueio {
+            font-size: 1.1rem;
             color: #ffb7b2;
+            margin-bottom: 15px;
+            margin-top: 20px;
+            font-style: italic;
         }
 
         #countdown {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: bold;
             font-family: monospace;
-            background: rgba(0,0,0,0.3);
-            padding: 20px;
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            padding: 15px 30px;
+            border-radius: 50px;
             border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         /* --- CONTEÚDO PRINCIPAL (INICIALMENTE OCULTO) --- */
@@ -95,6 +111,32 @@
             font-size: 2.5rem;
             text-shadow: 0 0 10px rgba(255,20,147, 0.8);
             margin-bottom: 5px;
+        }
+
+        /* --- CONTADOR DE DIAS JUNTOS --- */
+        .love-counter-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px auto;
+            max-width: 90%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .love-counter-box p {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #ffb7b2;
+        }
+
+        .love-time {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         /* Carta de Amor */
@@ -136,7 +178,7 @@
             background: #fff;
             padding: 10px 10px 40px 10px;
             border-radius: 4px;
-            width: 220px; /* Um pouco menor para caberem mais */
+            width: 220px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             transition: transform 0.3s ease;
             position: relative;
@@ -171,9 +213,15 @@
 
     <div id="locked-screen">
         <div class="lock-icon">🔒</div>
-        <div class="countdown-title">Surpresa desbloqueia em:</div>
+        
+        <div class="dedicatoria">
+            Do seu Gersinho<br>
+            Ao amor da minha vida ♥️
+        </div>
+
+        <div class="aviso-bloqueio">Desbloqueia a meia noite...</div>
+        
         <div id="countdown">--:--:--</div>
-        <p style="margin-top: 20px; color: #ccc; font-size: 0.9rem;">(Aguarde até 03/02 à meia-noite)</p>
     </div>
 
     <div id="main-content">
@@ -181,6 +229,11 @@
             <h1>Thais & Gerson</h1>
             <p style="font-size: 1.2rem; color: #ffb7b2;">2 Anos e 5 Meses ❤️</p>
         </header>
+
+        <div class="love-counter-box">
+            <p>Construindo nossa história há:</p>
+            <div id="love-timer" class="love-time">Calculando...</div>
+        </div>
 
         <div class="love-letter">
             <p>Meu amor, obrigado por tudo que passamos juntos nesses 2 anos e 5 meses, por todo aprendizado que sempre você me traz, pela força que me dá e pela forma que me encoraja a sempre ser um homem melhor. Às vezes não cai a ficha que eu tenho você! ♥️♥️♥️</p>
@@ -217,44 +270,57 @@
     </div>
 
     <script>
-        // --- DATA DE DESBLOQUEIO ---
-        // Configurado para: 03 de Fevereiro de 2026 às 00:00:00
+        // --- CONFIGURAÇÕES ---
+        // Data do Desbloqueio: 03/02/2026 00:00
         const unlockDate = new Date(2026, 1, 3, 0, 0, 0); 
-        // (Nota técnica: No javascript, Janeiro é 0, Fevereiro é 1)
 
-        function checkTime() {
+        // Data de Início do Namoro: 03/09/2023
+        const relationshipStartDate = new Date(2023, 8, 3, 0, 0, 0);
+
+        // --- LÓGICA DO BLOQUEIO ---
+        function checkLock() {
             const now = new Date();
             const difference = unlockDate - now;
 
             if (difference <= 0) {
-                // Chegou a hora! Desbloqueia.
+                // Desbloqueia
                 document.getElementById('locked-screen').style.display = 'none';
                 const content = document.getElementById('main-content');
                 content.style.display = 'block';
-                // Pequeno delay para a transição suave funcionar
                 setTimeout(() => { content.style.opacity = 1; }, 100);
+                
+                // Inicia o contador de namoro
+                updateLoveTimer();
+                setInterval(updateLoveTimer, 1000);
             } else {
-                // Ainda bloqueado, atualiza o contador
-                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-                // Formata com zero à esquerda (09:05:01)
-                const h = hours < 10 ? '0' + hours : hours;
-                const m = minutes < 10 ? '0' + minutes : minutes;
-                const s = seconds < 10 ? '0' + seconds : seconds;
-
-                document.getElementById('countdown').innerText = `${h}:${m}:${s}`;
+                // Atualiza contagem regressiva
+                const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((difference % (1000 * 60)) / 1000);
+                
+                document.getElementById('countdown').innerText = 
+                    `${h < 10 ? '0'+h : h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
             }
         }
 
-        setInterval(checkTime, 1000);
-        checkTime(); // Roda imediatamente ao carregar
+        // --- LÓGICA DO CONTADOR DE NAMORO ---
+        function updateLoveTimer() {
+            const now = new Date();
+            const diff = now - relationshipStartDate;
 
-        // --- CORAÇÕES ---
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            document.getElementById("love-timer").innerHTML = 
+                `❤ ${days} dias, ${hours}h ${minutes}m ${seconds}s ❤`;
+        }
+
+        // --- CORAÇÕES DE FUNDO ---
         function createHearts() {
             const container = document.getElementById('heartsBg');
-            for (let i = 0; i < 25; i++) {
+            for (let i = 0; i < 30; i++) {
                 const heart = document.createElement('div');
                 heart.classList.add('heart-fall');
                 heart.innerHTML = '❤';
@@ -264,7 +330,11 @@
                 container.appendChild(heart);
             }
         }
+
+        // Inicia
         createHearts();
+        setInterval(checkLock, 1000);
+        checkLock();
     </script>
 </body>
 </html>
